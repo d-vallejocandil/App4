@@ -1,6 +1,6 @@
 package com.example.app4
 
-data class Book(val id: Long, var title: String, var read: Boolean = false) {
+data class Book(val id: Long = -1, var title: String, var read: Boolean = false) {
     companion object {
         const val TABLE_NAME = "Book"
         const val COLUMN_NAME_ID = "id"

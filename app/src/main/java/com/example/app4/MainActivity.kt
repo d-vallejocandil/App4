@@ -23,10 +23,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         dao = BookDAO(this)
-        /*val book1 = Book(-1, "Title 1")
-        val book2 = Book(-1, "Title 2")
-        dao.insert(book1)
-        dao.insert(book2)*/
         books = dao.get()
         adapter = BookAdapter(books)
         binding.recycler.adapter = adapter
