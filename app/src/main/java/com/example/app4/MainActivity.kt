@@ -31,25 +31,7 @@ class MainActivity : AppCompatActivity() {
         books = dao.get()
         adapter = BookAdapter(books, ::check, ::edit, ::delete)
         binding.recycler.adapter = adapter
-        val callback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                val from = viewHolder.bindingAdapterPosition
-                val to = target.bindingAdapterPosition
-                if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
-                adapter.move(from, to)
-                return true
-            }
-            override fun isLongPressDragEnabled(): Boolean {
-                return false
-            }
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(binding.recycler)
-        adapter.startDrag = { viewHolder ->
-            itemTouchHelper.startDrag(viewHolder)
-        }
+        configureGestures()
         binding.add.setOnClickListener {
             val book = Book(title="")
             bookDialog(book)
@@ -113,6 +95,32 @@ class MainActivity : AppCompatActivity() {
                 update()
                 dialog.dismiss()
             }
+        }
+    }
+
+    fun configureGestures() {
+        val callback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.START) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                val from = viewHolder.bindingAdapterPosition
+                val to = target.bindingAdapterPosition
+                if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
+                adapter.move(from, to)
+                return true
+            }
+            override fun isLongPressDragEnabled(): Boolean {
+                return false
+            }
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.START) {
+                    delete(viewHolder.bindingAdapterPosition)
+                    adapter.notifyItemChanged(viewHolder.bindingAdapterPosition)
+                }
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.recycler)
+        adapter.startDrag = { viewHolder ->
+            itemTouchHelper.startDrag(viewHolder)
         }
     }
 }
