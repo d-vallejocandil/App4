@@ -79,7 +79,7 @@ class BookDAO(val context: Context) {
     fun get(): List<Book> {
         open()
         var books: MutableList<Book> = mutableListOf()
-        val cursor = db.query(Book.TABLE_NAME, null, null, null, null, null, null)
+        val cursor = db.query(Book.TABLE_NAME, null, null, null, null, null, "${Book.COLUMN_NAME_ID}")
         try {
             while (cursor.moveToNext()) {
                 books.add(cursor(cursor))
@@ -90,5 +90,12 @@ class BookDAO(val context: Context) {
             close()
         }
         return books
+    }
+    fun save(book: Book) {
+        if(book.id == (-1).toLong()) {
+            insert(book)
+        } else {
+            update(book)
+        }
     }
 }
