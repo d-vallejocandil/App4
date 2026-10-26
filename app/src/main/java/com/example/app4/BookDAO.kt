@@ -79,7 +79,7 @@ class BookDAO(val context: Context) {
     fun get(): List<Book> {
         open()
         var books: MutableList<Book> = mutableListOf()
-        val cursor = db.query(Book.TABLE_NAME, null, null, null, null, null, "${Book.COLUMN_NAME_ID}")
+        val cursor = db.query(Book.TABLE_NAME, null, null, null, null, null, null)
         try {
             while (cursor.moveToNext()) {
                 books.add(cursor(cursor))

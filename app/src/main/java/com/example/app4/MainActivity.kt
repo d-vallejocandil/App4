@@ -6,6 +6,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.app4.databinding.ActivityMainBinding
 import com.example.app4.databinding.BookDialogBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -29,6 +31,25 @@ class MainActivity : AppCompatActivity() {
         books = dao.get()
         adapter = BookAdapter(books, ::check, ::edit, ::delete)
         binding.recycler.adapter = adapter
+        val callback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                val from = viewHolder.bindingAdapterPosition
+                val to = target.bindingAdapterPosition
+                if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
+                adapter.move(from, to)
+                return true
+            }
+            override fun isLongPressDragEnabled(): Boolean {
+                return false
+            }
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.recycler)
+        adapter.startDrag = { viewHolder ->
+            itemTouchHelper.startDrag(viewHolder)
+        }
         binding.add.setOnClickListener {
             val book = Book(title="")
             bookDialog(book)
@@ -36,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     }
     fun update() {
         books = dao.get()
-        adapter.update(books.map { it.copy() }) // TODO
+        adapter.update(books.map { it.copy() } as MutableList<Book>) // TODO
     }
     override fun onResume() {
         super.onResume()
